@@ -80,7 +80,7 @@ def persist_messages(delimiter, quotechar, messages, destination_path):
             else:
                 headers[o['stream']] = flattened_record.keys()
 #######################
-            with open(filename, 'a', encoding="utf-8") as csvfile:
+            with open(filename, 'a', encoding="utf-8", newline='') as csvfile:
 #####################
                 writer = csv.DictWriter(csvfile,
                                         headers[o['stream']],
