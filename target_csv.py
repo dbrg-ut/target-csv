@@ -18,6 +18,10 @@ import singer
 
 logger = singer.get_logger()
 
+########################
+sys.stdout.reconfigure(encoding='utf-8')
+##########################
+
 def emit_state(state):
     if state is not None:
         line = json.dumps(state)
@@ -41,9 +45,9 @@ def persist_messages(delimiter, quotechar, messages, destination_path):
     key_properties = {}
     headers = {}
     validators = {}
-
-    now = datetime.now().strftime('%Y%m%dT%H%M%S')
-
+#############################
+    now = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+##############################
     for message in messages:
         try:
             o = singer.parse_message(message).asdict()
@@ -65,7 +69,9 @@ def persist_messages(delimiter, quotechar, messages, destination_path):
             flattened_record = flatten(o['record'])
 
             if o['stream'] not in headers and not file_is_empty:
-                with open(filename, 'r') as csvfile:
+####################                
+                with open(filename, 'r',encoding="utf-8") as csvfile:
+####################
                     reader = csv.reader(csvfile,
                                         delimiter=delimiter,
                                         quotechar=quotechar)
@@ -73,8 +79,9 @@ def persist_messages(delimiter, quotechar, messages, destination_path):
                     headers[o['stream']] = first_line if first_line else flattened_record.keys()
             else:
                 headers[o['stream']] = flattened_record.keys()
-
-            with open(filename, 'a') as csvfile:
+#######################
+            with open(filename, 'a', encoding="utf-8") as csvfile:
+#####################
                 writer = csv.DictWriter(csvfile,
                                         headers[o['stream']],
                                         extrasaction='ignore',
@@ -137,7 +144,9 @@ def main():
                     'the config parameter "disable_collection" to true')
         threading.Thread(target=send_usage_stats).start()
 
+######################
     input_messages = io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8')
+#####################    
     state = persist_messages(config.get('delimiter', ','),
                              config.get('quotechar', '"'),
                              input_messages,
